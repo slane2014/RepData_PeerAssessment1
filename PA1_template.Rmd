@@ -6,9 +6,21 @@ output:
 ---
 
 
+```{r introduction,echo=FALSE}
+setwd("~/datasciencecoursera/Reproducible_Research/Project1/RepData_PeerAssessment1")
+if (!file.exists("activity.csv")) {
+    unzip("activity.zip")
+}
+```
+
 ## Loading and preprocessing the data
+1. Load the data (i.e. read.csv())
+2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-
+```{r load_and_prep}
+data <- read.csv("activity.csv", header = TRUE, stringsAsFactors = FALSE)
+str(data)
+```
 
 ## What is mean total number of steps taken per day?
 
