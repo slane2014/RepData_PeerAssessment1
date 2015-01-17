@@ -1,13 +1,14 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
+title: 'Reproducible Research: Peer Assessment 1'
+output:
   html_document:
-    keep_md: true
+    keep_md: yes
 ---
 
-```{r introduction,echo=FALSE,results="hide"}
+```{r introduction,echo=FALSE,results='hide',message=FALSE,include=FALSE}
 library(plyr); library(dplyr)
 ```
+
 
 
 ## Loading and preprocessing the data
@@ -23,14 +24,15 @@ data <- read.csv("activity.csv", header = TRUE, stringsAsFactors = FALSE)
 str(data)
 ```
 
+
+
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-In this section, I have created two more columns of data:
-* date_posix: the date of each data point in POSIXct format
-* date_time_posix: the date and time of each data point in POSIXct format
+In this section, I have created two more columns of data:<br>
+- date_posix: the date of each data point in POSIXct format<br>
+- date_time_posix: the date and time of each data point in POSIXct format<br>
 
 ```{r process}
-# http://stat.ethz.ch/R-manual/R-devel/library/base/html/strptime.html
 data <- cbind(data, date_posix = strptime(data$date, "%Y-%m-%d"))  
 temp <- paste(data$date, round(data$interval/100), data$interval %% 100)
 data <- cbind(data, date_time_posix = strptime(temp, "%Y-%m-%d %H %M"))
@@ -45,36 +47,50 @@ For this part of the assignment, we ignore the missing values in the dataset.
 
 1. Make a histogram of the total number of steps taken each day
 
-For this section, we summed the number of steps taken across each 24-hour period
+For this section, we summed the number of steps taken within each 24-hour period
 within each day.
-
-As shown in the graph below, the 24-hour periods that contained between 10,000 and 15,000 total
-steps were most frequently observed. For example, Days 3, 4, and 5 (2012-10-03, 
-2012-10-04, and 2012-10-05) contained 22352, 12116, and 13294 total steps each,
-respectively. All three of these days results contributed to this
-frequency distribution.
 
 ```{r histogram}
 steps_per_day <- ddply(data, .(date_posix), summarize, sum = sum(steps))
-hist(steps_per_day$sum,
-     main = "Histogram of total steps across each 24-hour period",
+hist1 <- hist(steps_per_day$sum, breaks = 10)
+plot(hist1,
+     main = "Histogram of total steps taken within each 24-hour period",
      xlab = "Total steps")
 ```
 
+As shown in the graph above, the 24-hour periods that contained between 10,000 and 12,000 total
+steps were most frequently observed. For example, Days 3 and 4 (`r steps_per_day$date_posix[3]` and
+`r steps_per_day$date_posix[4]`) contained `r steps_per_day$sum[3]` and `r steps_per_day$sum[4]` 
+total steps each, respectively. The results from these two days contributed to the greatest
+frequency distribution.
+
+
 2. Calculate and report the <b>mean</b> and <b>median</b> total number of steps taken per day
 
-```{r mean_and_median}
+```{r mean_plot}
 steps_metrics <- ddply(data, .(date_posix), summarize, mean = mean(steps), median = median(steps))
-plot(steps_metrics$mean,
-     main = "Average number of total steps across each 24-hour period",
-     xlab = "Day number within two month period (2012-10-01 (Day 0) to 2012-11-30 (Day 61))",
+plot(steps_metrics$date_posix, steps_metrics$mean, 
+     main = "Mean number of total steps across each 24-hour period",
+     xlab = "Day within two month period (2012-10-01 to 2012-11-30)",
      ylab = "Average value")
 min_steps <- min(steps_metrics$mean, na.rm = TRUE)
 max_steps <- max(steps_metrics$mean, na.rm = TRUE)
 ```
 
-As shown in the graph below, the average number of steps taken per day varies betwen approximately 
-`r min_steps` and `r max_steps`. For example, the average number of steps taken during Day 2 `r steps_metrics$date_posix[2]` across all 5-minutes intervals was `r steps_metrics$mean[2]`.
+As shown in the graph above, the mean number of steps taken per day varies betwen approximately 
+`r min_steps` and `r max_steps`. For example, the mean number of steps taken during Day 2 (`r steps_metrics$date_posix[2]`) across all 5-minutes intervals was `r steps_metrics$mean[2]`. (Values
+of NA are not plotted.)
+
+```{r median_plot}
+plot(steps_metrics$date_posix, steps_metrics$median, 
+     main = "Median number of total steps across each 24-hour period",
+     xlab = "Day within two month period (2012-10-01 to 2012-11-30)",
+     ylab = "Median value")
+```
+
+As shown in the graph above, the median number of steps taken per day varies 
+is zero for all intervals. (Values of NA are not plotted.)
+
 
 ## What is the average daily activity pattern?
 
@@ -82,18 +98,23 @@ As shown in the graph below, the average number of steps taken per day varies be
 
 ```{r plot_five_min_interval}
 interval_mean <- ddply(data, .(interval), summarize, mean = mean(steps, na.rm = TRUE), median = median(steps, na.rm = TRUE))
-plot(interval_mean$mean, type = "l")
+plot(interval_mean$mean, 
+     type = "l",
+     main = "Mean number of total steps across each 5-minutes interval",
+     xlab = "Interval number within 24-hour day",
+     ylab = "Mean value")
 ```
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-The 5-minute time interval labeled "835" contained the maximum number of steps 
-across all days. This represents the 5-minute interval starting at 8:35AM each
-day. This interval contains 206.17 steps on average across all days.
-
 ```{r max_five_min_interval}
-interval_mean$interval[which.max(interval_mean$mean)]
+max <- interval_mean$interval[which.max(interval_mean$mean)]
+temp2 <- paste(round(max/100), max %% 100)
+time <- strptime(temp2, "%H%M")
 ```
+The 5-minute time interval labeled "`r max`" contains the maximum number of steps 
+across all days. This represents the 5-minute interval starting at `r time` each
+day. This interval contains 206.17 steps on average across all days.
 
 
 ## Imputing missing values
@@ -108,11 +129,11 @@ sum(is.na(data$steps))
 
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
-For this task, I have decided to replace each NA value with the rounded mean for that 5-minute interval. If the rounded mean for the 5-min interval is NA, then I replace it with '0'.
+For this task, I replaced each NA value with the rounded mean for the corresponding 5-minute interval. If the rounded mean for the 5-min interval is NA, then I replaced it with '0'.
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-The dataset called "data_mod" is equal to the original dataset, but has all steps values equal to NA with replacement data as described in the previous section.
+The dataset called "data_mod" is equal to the original dataset, but has all occurances of "steps=NA" replaced with data as described in the previous section.
 
 ```{r number_of_NA_values_modified}
 data_mod <- data
@@ -126,17 +147,32 @@ for (i in 0:(j-1)) {
 
 4. Make a histogram of the total number of steps taken each day and calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r mod_histogram}
+```{r mod_histogram,results='hide',message=FALSE,include=FALSE}
 mod_steps_per_day <- ddply(data_mod, .(date_posix), summarize, sum = sum(steps))
-hist(mod_steps_per_day$sum,
-     main = "Histogram of total steps (modified) across each 24-hour period",
+hist2 <- hist(mod_steps_per_day$sum)
+```
+
+```{r mod_histogram2}
+plot(hist2,
+     main = "Histogram of total steps taken within each \n24-hour period (modified data)",
      xlab = "Total steps")
+```
+
+```{r mod_histogram3}
+plot(hist1, col=rgb(0,0,1,1/4), 
+     main = "Comparison of original and modified data histograms \nof total steps (modified) across each 24-hour period",
+     xlab = "Total steps")
+plot(hist2, col=rgb(1,0,0,1/4), add=T)
+legend("topright", 
+        c("original data", "modified data"),
+       lty=c(1,1),
+       lwd=c(23,23),col=c(rgb(0,0,1,1/4),rgb(1,0,0,1/4)))
 ```
 
 ```{r mod_mean}
 mod_steps_metrics <- ddply(data_mod, .(date_posix), summarize, mean = mean(steps), median = median(steps))
 plot(mod_steps_metrics$mean,
-     main = "Average number of total steps (modified) across each 24-hour period",
+     main = "Average number of total steps (modified data) across each 24-hour period",
      xlab = "Day number within two month period (2012-10-01 (Day 0) to 2012-11-30 (Day 61))",
      ylab = "Average value")
 ```
@@ -156,25 +192,22 @@ For this part the weekdays() function may be of some help here. Use the dataset 
 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
 ```{r day}
-day_of_week <- factor(ifelse(as.integer(strftime(data$date_posix,'%u'))>5, "weekend", "weekday"))
 day_of_week_mod <- factor(ifelse(as.integer(strftime(data_mod$date_posix,'%u'))>5, "weekend", "weekday"))
-data <- cbind(data, day_of_week)
-data_mod <- cbind(data_mod, day_of_week)
+data_mod <- cbind(data_mod, day_of_week_mod)
+str(data_mod)
 ```
 
 2. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
 ```{r day_plot}
 library(lattice)
-xyplot(steps ~ interval | day_of_week, 
-        data = data, 
-       layout = c(1, 2), 
-       type = "l", 
-       ylab = "Number of steps")
-xyplot(steps ~ interval | day_of_week, 
+xyplot(steps ~ interval | day_of_week_mod, 
         data = data_mod, 
-       layout = c(1, 2), 
-       type = "l", 
-       ylab = "Number of steps")
+        layout = c(1, 2), 
+        type = "l", 
+        main = "Mean number of total steps across each 5-minutes interval, split
+        by weekend and weekday",
+        xlab = "Interval number within 24-hour day",
+        ylab = "Number of steps")
 ```
 
