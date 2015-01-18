@@ -2,6 +2,7 @@
 
 
 
+
 ## Loading and preprocessing the data
 1. Load the data (i.e. read.csv())
 
