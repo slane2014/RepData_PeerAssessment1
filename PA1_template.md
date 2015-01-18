@@ -24,7 +24,6 @@ str(data)
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
-
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
 In this section, I have created two more columns of data:<br>
