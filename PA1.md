@@ -4,7 +4,6 @@ title: 'Reproducible Research: Peer Assessment 1'
 
 
 
-
 ## Loading and preprocessing the data
 1. Load the data (i.e. read.csv())
 
@@ -79,14 +78,6 @@ As shown in the graph above, the 24-hour periods that contained between 10,000 a
 
 ```r
 steps_metrics <- ddply(data, .(date_posix), summarize, mean = mean(steps), median = median(steps))
-```
-
-```
-## Warning: closing unused connection 5 (repdata_data_StormData.csv.bz2)
-## Warning: closing unused connection 4 (repdata_data_StormData.csv.bz2)
-```
-
-```r
 min_steps <- min(steps_metrics$mean, na.rm = TRUE)
 max_steps <- max(steps_metrics$mean, na.rm = TRUE)
 

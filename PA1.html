@@ -273,13 +273,7 @@ hist1 &lt;- hist(steps_per_day$sum,
 </ol>
 
 <pre><code class="r">steps_metrics &lt;- ddply(data, .(date_posix), summarize, mean = mean(steps), median = median(steps))
-</code></pre>
-
-<pre><code>## Warning: closing unused connection 5 (repdata_data_StormData.csv.bz2)
-## Warning: closing unused connection 4 (repdata_data_StormData.csv.bz2)
-</code></pre>
-
-<pre><code class="r">min_steps &lt;- min(steps_metrics$mean, na.rm = TRUE)
+min_steps &lt;- min(steps_metrics$mean, na.rm = TRUE)
 max_steps &lt;- max(steps_metrics$mean, na.rm = TRUE)
 
 plot(steps_metrics$date_posix, steps_metrics$mean, 

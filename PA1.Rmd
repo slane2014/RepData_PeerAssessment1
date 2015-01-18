@@ -6,7 +6,6 @@ title: 'Reproducible Research: Peer Assessment 1'
 library(plyr); library(dplyr)
 ```
 
-
 ## Loading and preprocessing the data
 1. Load the data (i.e. read.csv())
 
