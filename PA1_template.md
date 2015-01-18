@@ -25,7 +25,6 @@ str(data)
 ```
 
 
-
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
 In this section, I have created two more columns of data:<br>
